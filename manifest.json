@@ -1,0 +1,16 @@
+{
+  "name": "আল-কুরআন অ্যাপ - পূর্ণাঙ্গ তিলাওয়াত ও অনুবাদ",
+  "short_name": "আল-কুরআন",
+  "description": "পবিত্র কুরআনের তিলাওয়াত, অনুবাদ, উচ্চারণ, জিকির, কিবলা কম্পাস ও নামাজের সময় সহ পূর্ণাঙ্গ ইসলামিক অ্যাপ।",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fef9e7",
+  "theme_color": "#1b5e20",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕌</text></svg>",
+      "sizes": "100x100",
+      "type": "image/svg+xml"
+    }
+  ]
+}
