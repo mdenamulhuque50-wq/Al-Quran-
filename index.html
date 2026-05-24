@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="bn" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>আল-কুরআন অ্যাপ</title>
+  <meta name="theme-color" content="#1b5e20">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕌</text></svg>">
+  <style>
+    :root {
+      --bg: #fef9e7;
+      --card: #fffaf0;
+      --text: #1e2b20;
+      --primary: #1b5e20;
+      --gold: #b8860b;
+      --font-size: 18px;
+      --border: #c2a56b;
+      direction: ltr;
+    }
+    body.dark {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --text: #e0d7c6;
+      --primary: #2e7d32;
+      --gold: #d4af37;
+      --border: #5a4a32;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans Bengali', 'SolaimanLipi', 'Siyam Rupali', sans-serif;
+      font-size: var(--font-size);
+      line-height: 1.6;
+      transition: background 0.3s;
+      padding-bottom: 70px;
+    }
+    header {
+      background: linear-gradient(135deg, #0d3b0e, #1b5e20);
+      color: #f5e6c8;
+      padding: 1rem;
+      text-align: center;
+      border-bottom: 4px solid var(--gold);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 { font-size: 1.8rem; margin-bottom: 0.2rem; }
+    .nav-tabs {
+      display: flex;
+      justify-content: space-around;
+      background: var(--card);
+      border-bottom: 2px solid var(--border);
+      position: sticky;
+      top: 80px;
+      z-index: 9;
+      flex-wrap: wrap;
+    }
+    .nav-tabs button {
+      background: none;
+      border: none;
+      padding: 0.8rem 0.5rem;
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--text);
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      transition: 0.3s;
+      flex-grow: 1;
+    }
+    .nav-tabs button.active {
+      border-bottom-color: var(--gold);
+      color: var(--primary);
+      background: #fdf2d0;
+    }
+    .tab-content { display: none; padding: 1rem; }
+    .tab-content.active { display: block; }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 1rem;
+      align-items: center;
+      background: var(--card);
+      padding: 0.8rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    select, button {
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .surah-list {
+      max-height: 60vh;
+      overflow-y: auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .surah-item {
+      padding: 0.6rem;
+      border-bottom: 1px dashed var(--border);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+    }
+    .surah-item:hover { background: #f1e7cf; }
+    .ayah-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      margin: 0.8rem 0;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .ayah-card.active {
+      border-left: 6px solid var(--gold);
+      background: #fffde7;
+    }
+    .arabic { font-size: 1.6rem; text-align: right; direction: rtl; line-height: 2.2; margin: 0.5rem 0; }
+    .transliteration { color: var(--primary); font-style: italic; }
+    .translation { color: var(--text); margin-top: 0.5rem; }
+    .player-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--primary);
+      color: #fff;
+      padding: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 100;
+    }
+    .player-bar button { background: var(--gold); color: #000; border: none; }
+    .compass {
+      width: 200px; height: 200px; border-radius: 50%;
+      background: #eee; margin: 1rem auto; position: relative;
+      border: 5px solid var(--gold);
+    }
+    .needle {
+      position: absolute;
+      width: 4px; height: 50%; background: red;
+      left: 50%; bottom: 50%; transform-origin: bottom center;
+    }
+    .prayer-times div { margin: 0.5rem 0; }
+    .dhikr-card { background: var(--card); padding: 1rem; margin: 0.8rem 0; border-radius: 10px; }
+    .footer-settings { display: flex; justify-content: space-between; padding: 1rem; }
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>📖 আল-কুরআন</h1>
+  <div style="font-size:0.9rem">পবিত্র কুরআন তিলাওয়াত ও জ্ঞান</div>
+</header>
+
+<div class="nav-tabs" id="navTabs">
+  <button class="active" data-tab="quran">কুরআন</button>
+  <button data-tab="dhikr">জিকির/দোয়া</button>
+  <button data-tab="qibla">কিবলা</button>
+  <button data-tab="prayer">নামাজ</button>
+</div>
+
+<!-- কুরআন ট্যাব -->
+<div id="tab-quran" class="tab-content active">
+  <div class="controls">
+    <select id="reciterSelect"></select>
+    <select id="transSelect"></select>
+    <button id="fontInc">A+</button>
+    <button id="fontDec">A-</button>
+    <button id="darkToggle">🌙</button>
+    <button id="downloadSurah">⬇️ সূরা ডাউনলোড</button>
+  </div>
+  <div class="surah-list" id="surahList"></div>
+  <div id="ayahContainer"></div>
+</div>
+
+<!-- জিকির ট্যাব -->
+<div id="tab-dhikr" class="tab-content">
+  <h3>দৈনন্দিন জিকির ও দোয়া</h3>
+  <div id="dhikrContainer"></div>
+</div>
+
+<!-- কিবলা ট্যাব -->
+<div id="tab-qibla" class="tab-content">
+  <h3>কিবলা কম্পাস</h3>
+  <div class="compass" id="compass"><div class="needle" id="needle"></div></div>
+  <p id="qiblaAngle">কিবলা এঙ্গেল: --°</p>
+  <button onclick="requestCompass()">কম্পাস চালু</button>
+</div>
+
+<!-- নামাজ ট্যাব -->
+<div id="tab-prayer" class="tab-content">
+  <h3>নামাজের সময়</h3>
+  <div id="prayerTimes">লোকেশন দিন...</div>
+  <button onclick="getPrayerTimes()">আজকের সময় দেখুন</button>
+</div>
+
+<!-- প্লেয়ার বার -->
+<div class="player-bar" id="playerBar" style="display:none">
+  <button id="playBtn">▶️</button>
+  <span id="nowPlaying" style="flex:1">সূরা নির্বাচন করুন</span>
+  <button id="stopBtn">⏹️</button>
+</div>
+
+<script>
+// ================== গ্লোবাল ভ্যারিয়েবল ==================
+const API = 'https://api.alquran.cloud/v1';
+let currentReciter = 'ar.alafasy';
+let currentTrans = 'bn.bengali';
+let currentSurah = null;
+let ayahData = []; // {arabic, transliteration, translation, audio}
+let audio = new Audio();
+let currentAyahIdx = 0;
+let isPlaying = false;
+let lastRead = JSON.parse(localStorage.getItem('lastRead') || '{}');
+
+// রিসাইটার ও অনুবাদ তালিকা
+const reciters = [
+  {id:'ar.alafasy', name:'Mishary Alafasy'},
+  {id:'ar.abdulbasitmurattal', name:'Abdul Basit'},
+  {id:'ar.hudhaify', name:'Ali Hudhaify'},
+  {id:'ar.saoodshuraym', name:'Saood Shuraym'},
+  {id:'ar.maheralmuaiqly', name:'Maher Al Muaiqly'}
+];
+const translations = [
+  {id:'bn.bengali', name:'বাংলা'},
+  {id:'en.sahih', name:'English'},
+  {id:'ur.maududi', name:'اردو'},
+  {id:'hi.hindi', name:'हिन्दी'},
+  {id:'ar.arabic', name:'عربي'}
+];
+
+// সূরার তালিকা (নাম্বার, আরবি নাম, বাংলা নাম)
+const surahNames = [
+  {n:1, ar:'الفاتحة', bn:'আল-ফাতিহা'},
+  {n:2, ar:'البقرة', bn:'আল-বাকারা'},
+  // সম্পূর্ণ ১১৪ সূরা সংক্ষেপে...
+  {n:114, ar:'الناس', bn:'আন-নাস'}
+];
+// সংক্ষিপ্ত করতে ১১৪ সূরা পুরো দিতে হবে, উপরে শুধু নমুনা; নিচে পূর্ণ JSON দেওয়া আছে।
+
+// পূর্ণ সূরা তালিকা (সংক্ষিপ্ত না করে পুরো অ্যারে পরে যোগ করুন; নিচে ফাংশনে ফেচ করবো API থেকে)
+function loadSurahList() {
+  fetch(`${API}/surah`)
+    .then(r=>r.json())
+    .then(data=>{
+      const list = document.getElementById('surahList');
+      list.innerHTML = '';
+      data.data.forEach(s=>{
+        const div = document.createElement('div');
+        div.className = 'surah-item';
+        div.innerHTML = `<span>${s.number}. ${s.englishName} (${s.name})</span><span>${s.ayahs} আয়াত</span>`;
+        div.onclick = ()=> loadSurah(s.number);
+        list.appendChild(div);
+      });
+      // শেষ পড়া অবস্থায় ফিরে যাওয়া
+      if(lastRead.surah) loadSurah(lastRead.surah, lastRead.ayah);
+    });
+}
+
+// ড্রপডাউন পূরণ
+function populateSelects() {
+  const rec = document.getElementById('reciterSelect');
+  reciters.forEach(r=> rec.innerHTML += `<option value="${r.id}">${r.name}</option>`);
+  rec.value = currentReciter;
+  rec.onchange = ()=> { currentReciter = rec.value; if(currentSurah) loadSurah(currentSurah); };
+  
+  const tr = document.getElementById('transSelect');
+  translations.forEach(t=> tr.innerHTML += `<option value="${t.id}">${t.name}</option>`);
+  tr.value = currentTrans;
+  tr.onchange = ()=> { currentTrans = tr.value; if(currentSurah) loadSurah(currentSurah); };
+}
+
+// সূরা লোড (আয়াত + অডিও)
+async function loadSurah(num, resumeAyah=1) {
+  currentSurah = num;
+  document.getElementById('surahList').style.display='none';
+  document.getElementById('ayahContainer').innerHTML = 'লোড হচ্ছে...';
+  document.getElementById('playerBar').style.display='flex';
+  
+  try {
+    const [editionsRes, audioRes] = await Promise.all([
+      fetch(`${API}/surah/${num}/editions/quran-uthmani,en.transliteration,${currentTrans}`),
+      fetch(`${API}/surah/${num}/${currentReciter}`)
+    ]);
+    const editions = await editionsRes.json();
+    const audioData = await audioRes.json();
+    
+    const arabicAyahs = editions.data[0].ayahs;
+    const translitAyahs = editions.data[1].ayahs;
+    const transAyahs = editions.data[2].ayahs;
+    const audioAyahs = audioData.data.ayahs;
+    
+    ayahData = arabicAyahs.map((a,i)=>({
+      number: a.number,
+      arabic: a.text,
+      transliteration: translitAyahs[i].text,
+      translation: transAyahs[i].text,
+      audio: audioAyahs[i].audio,
+      audioSecondary: audioAyahs[i].audioSecondary || ''
+    }));
+    
+    renderAyahs();
+    // নির্দিষ্ট আয়াতে স্ক্রল
+    if(resumeAyah) currentAyahIdx = resumeAyah-1;
+    else currentAyahIdx = 0;
+    highlightAyah(currentAyahIdx);
+    saveLastRead(num, currentAyahIdx+1);
+  } catch(e) {
+    document.getElementById('ayahContainer').innerHTML = 'ডেটা লোড করতে ব্যর্থ।';
+  }
+}
+
+function renderAyahs() {
+  const container = document.getElementById('ayahContainer');
+  container.innerHTML = ayahData.map((a,i) => `
+    <div class="ayah-card" id="ayah-${i}">
+      <div class="arabic">${a.arabic} ﴿${a.number}﴾</div>
+      <div class="transliteration">${a.transliteration}</div>
+      <div class="translation">${a.translation}</div>
+    </div>
+  `).join('');
+}
+
+function highlightAyah(idx) {
+  document.querySelectorAll('.ayah-card').forEach(c=>c.classList.remove('active'));
+  const target = document.getElementById(`ayah-${idx}`);
+  if(target) {
+    target.classList.add('active');
+    target.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+}
+
+// অডিও প্লেব্যাক
+function playFrom(idx) {
+  if(!ayahData.length) return;
+  currentAyahIdx = idx;
+  playCurrentAyah();
+}
+function playCurrentAyah() {
+  if(currentAyahIdx >= ayahData.length) { stop(); return; }
+  audio.src = ayahData[currentAyahIdx].audio;
+  audio.play();
+  isPlaying = true;
+  document.getElementById('playBtn').textContent = '⏸️';
+  highlightAyah(currentAyahIdx);
+  saveLastRead(currentSurah, currentAyahIdx+1);
+}
+audio.onended = ()=>{
+  currentAyahIdx++;
+  playCurrentAyah();
+};
+document.getElementById('playBtn').onclick = ()=>{
+  if(isPlaying) { audio.pause(); isPlaying=false; playBtn.textContent='▶️'; }
+  else playFrom(currentAyahIdx);
+};
+document.getElementById('stopBtn').onclick = ()=>{
+  audio.pause(); isPlaying=false;
+  document.getElementById('playBtn').textContent='▶️';
+};
+
+function saveLastRead(surah, ayah) {
+  localStorage.setItem('lastRead', JSON.stringify({surah, ayah}));
+  document.getElementById('nowPlaying').textContent = `সূরা ${surah} : আয়াত ${ayah}`;
+}
+
+// ডাউনলোড বাটন (ক্যাশে সংরক্ষণ)
+document.getElementById('downloadSurah').onclick = async ()=>{
+  if(!ayahData.length) return alert('প্রথমে সূরা লোড করুন');
+  if(!navigator.serviceWorker.controller) return alert('অফলাইন সাপোর্ট নেই');
+  // সার্ভিস ওয়ার্কারকে মেসেজ পাঠিয়ে ক্যাশে রাখুন
+  const urls = ayahData.map(a=>a.audio);
+  navigator.serviceWorker.controller.postMessage({type:'cacheAudio', urls});
+  alert('সূরার অডিও ক্যাশে সংরক্ষণের অনুরোধ পাঠানো হয়েছে');
+};
+
+// ডার্ক মোড ও ফন্ট
+document.getElementById('darkToggle').onclick = ()=>{
+  document.body.classList.toggle('dark');
+};
+document.getElementById('fontInc').onclick = ()=> document.documentElement.style.setProperty('--font-size', (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--font-size'))+2)+'px');
+document.getElementById('fontDec').onclick = ()=> document.documentElement.style.setProperty('--font-size', (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--font-size'))-2)+'px');
+
+// ট্যাব সুইচিং
+document.querySelectorAll('.nav-tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.nav-tabs button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='qibla') requestCompass();
+    if(btn.dataset.tab==='prayer') getPrayerTimes();
+  });
+});
+
+// জিকির/দোয়া
+const dhikrs = [
+  {arabic:'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ', bn:'আল্লাহর পবিত্রতা ও প্রশংসা', count:'১০০ বার'},
+  {arabic:'لَا إِلَٰهَ إِلَّا ٱللَّٰهُ', bn:'আল্লাহ ছাড়া কোনো উপাস্য নেই', count:'যেকোনো সময়'},
+];
+function loadDhikr() {
+  document.getElementById('dhikrContainer').innerHTML = dhikrs.map(d=>`
+    <div class="dhikr-card"><div class="arabic">${d.arabic}</div><p>${d.bn} (${d.count})</p></div>
+  `).join('');
+}
+
+// কিবলা কম্পাস
+let qiblaBearing = 0;
+function requestCompass() {
+  if (window.DeviceOrientationEvent) {
+    window.addEventListener('deviceorientation', handleOrientation);
+    document.getElementById('qiblaAngle').textContent = 'কম্পাস সক্রিয়';
+  } else alert('আপনার ডিভাইস কম্পাস সাপোর্ট করে না');
+}
+function handleOrientation(event) {
+  const alpha = event.webkitCompassHeading || event.alpha;
+  if(alpha === null) return;
+  const needle = document.getElementById('needle');
+  const angle = alpha - qiblaBearing;
+  needle.style.transform = `rotate(${angle}deg)`;
+}
+// কিবলা বিয়ারিং হিসাব (কাবা: 21.4225, 39.8262)
+navigator.geolocation.getCurrentPosition(pos=>{
+  const lat = pos.coords.latitude, lon = pos.coords.longitude;
+  qiblaBearing = getQibla(lat, lon, 21.4225, 39.8262);
+  document.getElementById('qiblaAngle').textContent = `কিবলা এঙ্গেল: ${qiblaBearing.toFixed(1)}°`;
+});
+function getQibla(lat1, lon1, lat2, lon2) {
+  const φ1 = lat1 * Math.PI/180, φ2 = lat2 * Math.PI/180;
+  const Δλ = (lon2-lon1) * Math.PI/180;
+  const y = Math.sin(Δλ) * Math.cos(φ2);
+  const x = Math.cos(φ1)*Math.sin(φ2) - Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+  return (Math.atan2(y, x)*180/Math.PI + 360) % 360;
+}
+
+// নামাজের সময়
+function getPrayerTimes() {
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const lat=pos.coords.latitude, lon=pos.coords.longitude;
+    const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=2`);
+    const data = await res.json();
+    const t = data.data.timings;
+    document.getElementById('prayerTimes').innerHTML = `
+      <div>ফজর: ${t.Fajr}</div><div>যোহর: ${t.Dhuhr}</div>
+      <div>আসর: ${t.Asr}</div><div>মাগরিব: ${t.Maghrib}</div><div>ইশা: ${t.Isha}</div>`;
+  });
+}
+
+// সার্ভিস ওয়ার্কার রেজিস্টার
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').then(reg=>console.log('SW registered'));
+  });
+}
+
+// অ্যাপ শুরু
+loadSurahList();
+populateSelects();
+loadDhikr();
+getPrayerTimes();
+</script>
+</body>
+</html>
